@@ -1,0 +1,4 @@
+import {requirePermission,currentUser} from '@/lib/auth';
+import {NextResponse} from 'next/server';import {mkdir,writeFile} from 'fs/promises';import path from 'path';import {randomUUID} from 'crypto';
+export const runtime='nodejs';
+export async function POST(req){try{await requirePermission('purchases.create');let data=await req.formData(),file=data.get('file');if(!file||typeof file==='string')throw Error('Select a document');const allowed={'application/pdf':'.pdf','image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp'};if(!allowed[file.type])throw Error('Only PDF, JPEG, PNG and WebP files are supported');if(file.size>10*1024*1024)throw Error('File must be 10 MB or less');const name=randomUUID()+allowed[file.type],dir=path.join(process.cwd(),'uploads');await mkdir(dir,{recursive:true});await writeFile(path.join(dir,name),Buffer.from(await file.arrayBuffer()));return NextResponse.json({name})}catch(e){return NextResponse.json({error:e.message},{status:400})}}

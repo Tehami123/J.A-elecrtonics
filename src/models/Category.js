@@ -1,0 +1,1 @@
+import mongoose from 'mongoose';const S=new mongoose.Schema({name:{type:String,required:true,trim:true,unique:true,maxlength:100},description:{type:String,trim:true,maxlength:500}},{timestamps:true});export default mongoose.models.Category||mongoose.model('Category',S);

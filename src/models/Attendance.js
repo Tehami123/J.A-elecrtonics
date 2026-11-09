@@ -1,0 +1,2 @@
+import mongoose from 'mongoose';
+const S=new mongoose.Schema({employeeId:{type:mongoose.Schema.Types.ObjectId,ref:'Employee',required:true},day:{type:String,required:true,match:/^\d{4}-\d{2}-\d{2}$/},status:{type:String,required:true,enum:['Present','Absent','Leave','Half Day']},shift:{type:String,trim:true,maxlength:80},notes:{type:String,maxlength:500}},{timestamps:true});S.index({employeeId:1,day:1},{unique:true});export default mongoose.models.Attendance||mongoose.model('Attendance',S);

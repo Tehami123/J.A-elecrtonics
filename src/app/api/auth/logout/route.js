@@ -1,0 +1,1 @@
+import {NextResponse} from 'next/server';export async function POST(){let res=NextResponse.json({ok:true});res.cookies.set('ja_session','',{httpOnly:true,path:'/',maxAge:0,sameSite:'strict'});return res}

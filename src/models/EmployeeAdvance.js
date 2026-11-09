@@ -1,0 +1,2 @@
+import mongoose from 'mongoose';
+const S=new mongoose.Schema({employeeId:{type:mongoose.Schema.Types.ObjectId,ref:'Employee',required:true},amount:{type:Number,required:true,min:.01,validate:Number.isFinite},remaining:{type:Number,required:true,min:0,validate:Number.isFinite},notes:{type:String,maxlength:500},issuedBy:{type:mongoose.Schema.Types.ObjectId,ref:'Employee',required:true}},{timestamps:true});S.index({employeeId:1,createdAt:1});export default mongoose.models.EmployeeAdvance||mongoose.model('EmployeeAdvance',S);

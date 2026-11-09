@@ -1,0 +1,30 @@
+{
+  "name": "ja-electronics",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/server.mjs dev",
+    "build": "next build",
+    "start": "node scripts/server.mjs start",
+    "demo:seed": "node scripts/seed-disposable.mjs",
+    "demo:cleanup": "node scripts/cleanup-disposable.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
+    "jose": "^6.2.15",
+    "lucide-react": "^0.468.0",
+    "mongoose": "^8.9.5",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.0",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17"
+  }
+}

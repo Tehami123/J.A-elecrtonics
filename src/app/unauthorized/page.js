@@ -1,0 +1,2 @@
+import Link from 'next/link';import {ArrowLeft,ShieldAlert} from 'lucide-react';
+export default function Unauthorized(){return <main className="login-shell"><section className="card login-card"><ShieldAlert size={32} color="#166534"/><h1>Access restricted</h1><p>Your account is limited to the point of sale. Contact an administrator if you need help.</p><Link className="button primary" href="/pos"><ArrowLeft size={16}/> Back to POS</Link></section></main>}

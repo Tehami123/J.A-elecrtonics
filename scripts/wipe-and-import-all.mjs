@@ -5,6 +5,7 @@ import {createRequire} from 'node:module';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {permissionKeys} from '../src/lib/permissions.js';
+import {resolveMongoDatabaseName} from '../src/lib/database-name.js';
 import Category from '../src/models/Category.js';
 import Employee from '../src/models/Employee.js';
 import Location from '../src/models/Location.js';
@@ -64,19 +65,6 @@ const numberValue=value=>{
   return Number.isFinite(parsed)?parsed:0;
 };
 const normalized=value=>cleanText(value).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-
-function databaseNameFromUri(uri){
-  let parsed;
-  try{
-    parsed=new URL(uri);
-  }catch{
-    throw new Error('MONGODB_URI in .env.local is not a valid MongoDB URI.');
-  }
-  if(!['mongodb:','mongodb+srv:'].includes(parsed.protocol))throw new Error('MONGODB_URI must use mongodb:// or mongodb+srv://.');
-  const candidate=decodeURIComponent(parsed.pathname.replace(/^\/+|\/+$/g,''));
-  const invalid=!candidate||candidate.length>63||/[\/\\."$*<>:|?]/.test(candidate)||candidate.includes('\0');
-  return {name:invalid?FALLBACK_DB_NAME:candidate,sanitized:invalid&&!!candidate};
-}
 
 function findHeaders(sheet){
   for(let rowNumber=1;rowNumber<=Math.min(sheet.rowCount,30);rowNumber++){
@@ -223,8 +211,8 @@ async function run(){
 
   const uri=process.env.MONGODB_URI;
   if(!uri)throw new Error('MONGODB_URI is not configured in .env.local.');
-  const database=databaseNameFromUri(uri);
-  console.log(`Target MongoDB database: ${database.name}${database.sanitized?' (invalid database path sanitized to ja-electronics)':''}.`);
+  const databaseName=resolveMongoDatabaseName(uri);
+  console.log(`Target MongoDB database: ${databaseName}.`);
 
   if(!process.argv.includes('--apply')){
     console.log('Dry run only. No database was changed. Use --apply with explicit destructive confirmation to import.');
@@ -233,14 +221,14 @@ async function run(){
   if(process.env.ALLOW_DESTRUCTIVE_IMPORT!=='yes'){
     throw new Error('Refusing to wipe data. Set ALLOW_DESTRUCTIVE_IMPORT=yes and rerun with --apply.');
   }
-  if(process.env.CONFIRM_WIPE_DATABASE!==database.name){
-    throw new Error(`Refusing to wipe data. Set CONFIRM_WIPE_DATABASE=${database.name} to confirm the exact target.`);
+  if(process.env.CONFIRM_WIPE_DATABASE!==databaseName){
+    throw new Error(`Refusing to wipe data. Set CONFIRM_WIPE_DATABASE=${databaseName} to confirm the exact target.`);
   }
   const adminPassword=process.env.IMPORT_ADMIN_PASSWORD;
   if(!adminPassword||adminPassword.length<12)throw new Error('Set IMPORT_ADMIN_PASSWORD (at least 12 characters) in the environment; the password is never hard-coded in this script.');
 
-  await mongoose.connect(uri,{dbName:database.name,serverSelectionTimeoutMS:10000});
-  if(mongoose.connection.db.databaseName!==database.name)throw new Error('Connected database does not match the confirmed target.');
+  await mongoose.connect(uri,{dbName:databaseName,serverSelectionTimeoutMS:10000});
+  if(mongoose.connection.db.databaseName!==databaseName)throw new Error('Connected database does not match the confirmed target.');
 
   const session=await mongoose.startSession();
   try{
@@ -399,7 +387,7 @@ async function run(){
     const importedBalance=round((await Party.aggregate([{$match:{partyType:'Supplier'}},{$group:{_id:null,total:{$sum:'$balance'}}}]))[0]?.total||0);
     if(importedBalance!==round(expectedBalance))throw new Error('Post-import supplier balance total did not match the workbook ledger totals.');
 
-    console.log(`Import completed successfully in database "${database.name}".`);
+    console.log(`Import completed successfully in database "${databaseName}".`);
     console.log(`Created admin account "${adminUsername}".`);
     console.log(`Imported ${partyCount} suppliers, ${itemCount} stock items, and ${transactionCount} historical ledger transactions.`);
     console.log(`Verified total supplier payable: PKR ${importedBalance.toFixed(2)}.`);

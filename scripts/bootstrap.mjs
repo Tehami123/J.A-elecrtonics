@@ -1,2 +1,2 @@
-import mongoose from 'mongoose';import {seedInitialAdmin} from './seed-admin.mjs';
-const uri=process.env.MONGODB_URI||'mongodb://127.0.0.1:27017/ja-electronics?replicaSet=rs0';await mongoose.connect(uri);try{console.log(await seedInitialAdmin(mongoose)?'Initial admin created. Change the known password immediately.':'Initialization skipped: an account or bootstrap marker already exists.')}finally{await mongoose.disconnect()}
+import mongoose from 'mongoose';import {resolveMongoDatabaseName} from '../src/lib/database-name.js';import {seedInitialAdmin} from './seed-admin.mjs';
+const uri=process.env.MONGODB_URI||'mongodb://127.0.0.1:27017/ja-electronics?replicaSet=rs0';await mongoose.connect(uri,{dbName:resolveMongoDatabaseName(uri)});try{console.log(await seedInitialAdmin(mongoose)?'Initial admin created. Change the known default password immediately.':'Initialization skipped: an account or bootstrap marker already exists.')}finally{await mongoose.disconnect()}

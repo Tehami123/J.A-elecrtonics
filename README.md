@@ -4,7 +4,7 @@ Next.js App Router wholesale management application with MongoDB/Mongoose.
 
 ## Setup
 
-1. Run `npm install`. Start a MongoDB replica set locally, or set `MONGODB_URI` in `.env.local` to an Atlas/replica-set URI. A replica set is required for atomic initialization and stock transactions.
+1. Run `npm install`. Start a MongoDB replica set locally, or set `MONGODB_URI` in `.env.local` to an Atlas/replica-set URI. If the URI omits a database path or contains a MongoDB-invalid database name, the app uses `ja-electronics`. A replica set is required for atomic initialization and stock transactions.
 2. Run `npm run dev` (or `npm run build && npm start`). On a database with no employees, the server automatically creates the initial Admin account and default locations. If MongoDB is temporarily unavailable at startup, initialization is retried on login. Existing installations are not modified and a deleted seeded admin is not recreated. Passwords are bcrypt-hashed; authentication always checks the database.
 3. The first-run credentials are `tehami` / `AdminPassword2026!`. **These credentials are publicly known: change the password immediately and do not expose a fresh installation to an untrusted network.** To change it, sign in and edit the administrator in Employees.
 4. If `SESSION_SECRET` is not set, the server generates an ephemeral random value at startup and all sessions expire on restart. For multi-instance or persistent deployments, set the same unique random `SESSION_SECRET` (at least 32 characters) across instances.

@@ -1,6 +1,7 @@
 // Explicit opt-in bulk fixture seed. Use only with a disposable database.
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
+import {resolveMongoDatabaseName} from '../src/lib/database-name.js';
 
 const { MONGODB_URI, ALLOW_DEMO_SEED } = process.env;
 if (!MONGODB_URI || ALLOW_DEMO_SEED !== 'yes') {
@@ -33,7 +34,7 @@ const phone = (index) => `03${String(100000000 + index).slice(-9)}`;
 const pastDate = (daysAgo, offset = 0) => new Date(Date.now() - (daysAgo + offset) * day);
 const pick = (items, index) => items[index % items.length];
 
-await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
+await mongoose.connect(MONGODB_URI, { dbName: resolveMongoDatabaseName(MONGODB_URI), serverSelectionTimeoutMS: 10000 });
 const db = mongoose.connection.db;
 const session = await mongoose.startSession();
 
